@@ -75,6 +75,7 @@ async function handler(req, res) {
   const isRunway = modelLower.includes('runway');
   const isGrokImagine = modelLower.includes('grok-imagine');
   const isKling = modelLower.includes('kling');
+  const isHailuo = modelLower.includes('hailuo');
 
   const duration =
     input.duration != null ? parseInt(input.duration, 10) : undefined;
@@ -145,6 +146,25 @@ async function handler(req, res) {
     },
   };
 
+  const hailuoPayload = {
+    model,
+    input: {
+      prompt: input.prompt,
+      image_url: input.image_url,
+      duration: input.duration != null ? String(input.duration) : undefined,
+      resolution:
+        input.resolution != null && input.resolution !== ''
+          ? input.resolution
+          : '768P',
+      prompt_optimizer:
+        input.prompt_optimizer === true ||
+        input.prompt_optimizer === 'true' ||
+        input.prompt_optimizer === 1
+          ? true
+          : false,
+    },
+  };
+
   let url;
   let payload;
   if (isRunway) {
@@ -156,6 +176,9 @@ async function handler(req, res) {
   } else if (isKling) {
     url = `${KIE_BASE}${KIE_CREATE_TASK_PATH}`;
     payload = klingPayload;
+  } else if (isHailuo) {
+    url = `${KIE_BASE}${KIE_CREATE_TASK_PATH}`;
+    payload = hailuoPayload;
   } else {
     url = `${KIE_BASE}${KIE_CREATE_TASK_PATH}`;
     payload = createTaskPayload;
