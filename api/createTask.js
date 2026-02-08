@@ -118,10 +118,13 @@ async function handler(req, res) {
       : [];
   const grokPayload = {
     model,
-    image_urls: imageUrlList,
-    prompt: input.prompt,
-    mode: 'normal',
-    duration: input.duration != null ? String(input.duration) : undefined,
+    ...(input.callBackUrl != null && input.callBackUrl !== '' && { callBackUrl: input.callBackUrl }),
+    input: {
+      image_urls: imageUrlList,
+      prompt: input.prompt,
+      mode: 'normal',
+      duration: input.duration != null ? String(input.duration) : undefined,
+    },
   };
 
   let url;
