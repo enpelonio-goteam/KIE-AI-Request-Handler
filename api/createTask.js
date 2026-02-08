@@ -1,5 +1,6 @@
 const KIE_BASE = 'https://api.kie.ai';
 const KIE_CREATE_TASK_PATH = '/api/v1/jobs/createTask';
+const KIE_RUNWAY_PATH = '/api/v1/runway/generate';
 
 const MAX_RETRIES = 4;
 const RETRY_DELAY_MS = 1500;
@@ -14,8 +15,7 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function callKieCreateTask(body, apiKey) {
-  const url = `${KIE_BASE}${KIE_CREATE_TASK_PATH}`;
+async function callKie(url, body, apiKey) {
   const res = await fetch(url, {
     method: 'POST',
     headers: {
@@ -69,7 +69,9 @@ async function handler(req, res) {
     });
   }
 
-  const kiePayload = {
+  const isRunway = String(model).toLowerCase().includes('runway');
+
+  const createTaskPayload = {
     model,
     input: {
       prompt: input.prompt,
@@ -79,9 +81,21 @@ async function handler(req, res) {
     },
   };
 
+  const runwayPayload = {
+    prompt: input.prompt,
+    imageUrl: input.image_url,
+    model,
+    quality: input.resolution || '720p',
+  };
+
+  const url = isRunway
+    ? `${KIE_BASE}${KIE_RUNWAY_PATH}`
+    : `${KIE_BASE}${KIE_CREATE_TASK_PATH}`;
+  const payload = isRunway ? runwayPayload : createTaskPayload;
+
   let lastResult = null;
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
-    lastResult = await callKieCreateTask(kiePayload, apiKey);
+    lastResult = await callKie(url, payload, apiKey);
 
     if (lastResult.ok) {
       res.setHeader('Content-Type', 'application/json');
