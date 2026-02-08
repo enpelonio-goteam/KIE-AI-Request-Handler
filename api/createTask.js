@@ -73,13 +73,31 @@ async function handler(req, res) {
 
   const isRunway = String(model).toLowerCase().includes('runway');
 
+  const duration =
+    input.duration != null ? parseInt(input.duration, 10) : undefined;
+
+  const VALID_RUNWAY_DURATIONS = [5, 8, 10];
+  if (isRunway) {
+    const runwayDuration = duration;
+    if (
+      runwayDuration === undefined ||
+      !Number.isInteger(runwayDuration) ||
+      !VALID_RUNWAY_DURATIONS.includes(runwayDuration)
+    ) {
+      return res.status(400).json({
+        error:
+          'Runway model requires "input.duration" to be 5, 8, or 10 (integer).',
+      });
+    }
+  }
+
   const createTaskPayload = {
     model,
     input: {
       prompt: input.prompt,
       image_url: input.image_url,
       resolution: input.resolution,
-      duration: input.duration,
+      duration,
     },
   };
 
@@ -88,6 +106,7 @@ async function handler(req, res) {
     imageUrl: input.image_url,
     model,
     quality: input.resolution || '720p',
+    duration: duration,
   };
 
   const url = isRunway
