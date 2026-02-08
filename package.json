@@ -1,0 +1,6 @@
+{
+  "name": "kie-ai-request-handler",
+  "version": "1.0.0",
+  "description": "Proxy for KIE.ai API with automatic retry on 500 errors",
+  "private": true
+}
