@@ -69,6 +69,8 @@ async function handler(req, res) {
     });
   }
 
+  console.log('[createTask] request body:', JSON.stringify(body, null, 2));
+
   const isRunway = String(model).toLowerCase().includes('runway');
 
   const createTaskPayload = {
