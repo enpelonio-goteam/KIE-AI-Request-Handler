@@ -74,6 +74,7 @@ async function handler(req, res) {
   const modelLower = String(model).toLowerCase();
   const isRunway = modelLower.includes('runway');
   const isGrokImagine = modelLower.includes('grok-imagine');
+  const isKling = modelLower.includes('kling');
 
   const duration =
     input.duration != null ? parseInt(input.duration, 10) : undefined;
@@ -127,6 +128,23 @@ async function handler(req, res) {
     },
   };
 
+  const klingPayload = {
+    model,
+    input: {
+      prompt: input.prompt,
+      image_url: input.image_url,
+      duration: input.duration != null ? String(input.duration) : undefined,
+      negative_prompt:
+        input.negative_prompt != null && input.negative_prompt !== ''
+          ? input.negative_prompt
+          : 'blur, distort, and low quality',
+      cfg_scale:
+        input.cfg_scale != null && input.cfg_scale !== ''
+          ? Number(input.cfg_scale)
+          : 1,
+    },
+  };
+
   let url;
   let payload;
   if (isRunway) {
@@ -135,6 +153,9 @@ async function handler(req, res) {
   } else if (isGrokImagine) {
     url = `${KIE_BASE}${KIE_CREATE_TASK_PATH}`;
     payload = grokPayload;
+  } else if (isKling) {
+    url = `${KIE_BASE}${KIE_CREATE_TASK_PATH}`;
+    payload = klingPayload;
   } else {
     url = `${KIE_BASE}${KIE_CREATE_TASK_PATH}`;
     payload = createTaskPayload;
