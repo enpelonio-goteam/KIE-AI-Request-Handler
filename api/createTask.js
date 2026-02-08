@@ -71,7 +71,9 @@ async function handler(req, res) {
 
   console.log('[createTask] request body:', JSON.stringify(body, null, 2));
 
-  const isRunway = String(model).toLowerCase().includes('runway');
+  const modelLower = String(model).toLowerCase();
+  const isRunway = modelLower.includes('runway');
+  const isGrokImagine = modelLower.includes('grok-imagine');
 
   const duration =
     input.duration != null ? parseInt(input.duration, 10) : undefined;
@@ -109,10 +111,30 @@ async function handler(req, res) {
     duration: duration,
   };
 
-  const url = isRunway
-    ? `${KIE_BASE}${KIE_RUNWAY_PATH}`
-    : `${KIE_BASE}${KIE_CREATE_TASK_PATH}`;
-  const payload = isRunway ? runwayPayload : createTaskPayload;
+  const imageUrlList = Array.isArray(input.image_url)
+    ? input.image_url
+    : input.image_url != null && input.image_url !== ''
+      ? [input.image_url]
+      : [];
+  const grokPayload = {
+    image_urls: imageUrlList,
+    prompt: input.prompt,
+    mode: 'normal',
+    duration: input.duration != null ? String(input.duration) : undefined,
+  };
+
+  let url;
+  let payload;
+  if (isRunway) {
+    url = `${KIE_BASE}${KIE_RUNWAY_PATH}`;
+    payload = runwayPayload;
+  } else if (isGrokImagine) {
+    url = `${KIE_BASE}${KIE_CREATE_TASK_PATH}`;
+    payload = grokPayload;
+  } else {
+    url = `${KIE_BASE}${KIE_CREATE_TASK_PATH}`;
+    payload = createTaskPayload;
+  }
 
   let lastResult = null;
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
