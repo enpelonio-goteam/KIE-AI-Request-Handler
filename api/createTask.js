@@ -117,6 +117,7 @@ async function handler(req, res) {
       ? [input.image_url]
       : [];
   const grokPayload = {
+    model,
     image_urls: imageUrlList,
     prompt: input.prompt,
     mode: 'normal',
