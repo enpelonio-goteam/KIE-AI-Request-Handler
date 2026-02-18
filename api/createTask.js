@@ -101,7 +101,7 @@ async function handler(req, res) {
       prompt: input.prompt,
       image_url: input.image_url,
       resolution: input.resolution,
-      duration,
+      duration: duration != null ? String(duration) : undefined,
     },
   };
 
@@ -110,7 +110,7 @@ async function handler(req, res) {
     imageUrl: input.image_url,
     model,
     quality: input.resolution || '720p',
-    duration: duration,
+    duration: duration != null ? String(duration) : undefined,
   };
 
   const imageUrlList = Array.isArray(input.image_url)
